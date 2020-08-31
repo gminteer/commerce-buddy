@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -23,40 +23,42 @@ router.get('/:id', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
 router.post('/', async (req, res) => {
   // create a new category
   try {
-    const data = await Category.create(req.body);
+    const {category_name} = req.body;
+    const data = await Category.create(category_name);
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
 router.put('/:id', async (req, res) => {
   // update a category by its `id` value
   try {
-    const data = await Category.update(req.body, {where: req.params});
-    return res.json(data);
+    const [affectedCount] = await Category.update(req.body, {where: req.params});
+    if (affectedCount > 0) return res.sendStatus(204);
+    else return res.sendStatus(404);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
 router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
   try {
-    const data = await Category.destroy({where: req.params});
+    await Category.destroy({where: req.params});
     return res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 

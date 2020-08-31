@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -43,11 +43,12 @@ router.put('/:id', async (req, res) => {
   // update a tag's name by its `id` value
   try {
     const {tag_name} = req.body;
-    const data = await Tag.update({tag_name}, {where: req.params});
-    return res.json(data);
+    const [affectedCount] = await Tag.update({tag_name}, {where: req.params});
+    if (affectedCount > 0) return res.sendStatus(204);
+    else return res.sendStatus(404);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -58,7 +59,7 @@ router.delete('/:id', async (req, res) => {
     return res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 

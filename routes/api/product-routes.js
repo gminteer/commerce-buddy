@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
@@ -39,19 +39,16 @@ router.post('/', async (req, res) => {
       product_name: "Basketball",
       price: 200.00,
       stock: 3,
+      category_id: 1,
       tagIds: [1, 2, 3, 4]
     }
   */
   try {
-    const product = await Product.create(req.body);
+    const {product_name, price, stock, tagIds, category_id} = req.body;
+    const product = await Product.create({product_name, price, stock, tagIds, category_id});
     // if there's product tags, we need to create pairings to bulk create in the ProductTag model
     if (req.body.tagIds.length) {
-      const productTagIdArr = req.body.tagIds.map((tag_id) => {
-        return {
-          product_id: product.id,
-          tag_id,
-        };
-      });
+      const productTagIdArr = tagIds.map((tag_id) => ({product_id: product.id, tag_id}));
       const productTagIds = await ProductTag.bulkCreate(productTagIdArr);
       return res.status(200).json([product, productTagIds]);
     }
@@ -67,7 +64,8 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     // update product data
-    const product = await Product.update(req.body, {where: req.params});
+    const [affectedCount] = await Product.update(req.body, {where: req.params});
+    if (affectedCount < 1) return res.sendStatus(404);
     // find all associated tags from ProductTag
     const productTags = await ProductTag.findAll({where: {product_id: req.params.id}});
     const productTagIds = productTags.map(({tag_id}) => tag_id);
@@ -83,7 +81,7 @@ router.put('/:id', async (req, res) => {
     // run both actions
     await ProductTag.destroy({where: {id: productTagsToRemove}});
     const updatedProductTags = await ProductTag.bulkCreate(newProductTags);
-    return res.json([product, updatedProductTags]);
+    return res.json(updatedProductTags);
   } catch (err) {
     // console.log(err);
     res.status(400).json(err);
@@ -97,7 +95,7 @@ router.delete('/:id', async (req, res) => {
     return res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    return res.status(500).json(err);
+    return res.status(400).json(err);
   }
 });
 
