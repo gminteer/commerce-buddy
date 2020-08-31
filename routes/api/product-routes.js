@@ -64,7 +64,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     // update product data
-    const [affectedCount] = await Product.update(req.body, {where: req.params});
+    const {product_name, price, stock, tagIds, category_id} = req.body;
+    const [affectedCount] = await Product.update(
+      {product_name, price, stock, tagIds, category_id},
+      {where: req.params}
+    );
     if (affectedCount < 1) return res.sendStatus(404);
     // find all associated tags from ProductTag
     const productTags = await ProductTag.findAll({where: {product_id: req.params.id}});
