@@ -2,7 +2,7 @@
 
 ## Description
 
-Manage products, categories, and tags with an intuitive REST interface. Check out a video walkthrough of the API [here]().
+Manage products, categories, and tags with an intuitive REST interface. Check out a video walkthrough of the API [here](https://youtu.be/mQO_gmB2vRw).
 
 ## License
 
